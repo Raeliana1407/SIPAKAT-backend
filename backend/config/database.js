@@ -1,9 +1,7 @@
 const { Sequelize } = require('sequelize');
 
-// Mengecek apakah host yang dipakai adalah Aiven Cloud
 const isAiven = process.env.DB_HOST && process.env.DB_HOST.includes('aivencloud');
 
-// Menggunakan process.env agar dinamis (bisa Vercel, bisa Laragon)
 const sequelize = new Sequelize(
     process.env.DB_NAME || 'sipakat_db',
     process.env.DB_USER || 'root',
@@ -12,14 +10,14 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST || '127.0.0.1',
         port: process.env.DB_PORT || 3306,
         dialect: 'mysql',
+        dialectModule: require('mysql2'), // <--- INI MANTRA SAKTINYA BIAR VERCEL GAK ERROR
         logging: false,
-        // Konfigurasi krusial: SSL Wajib menyala untuk Aiven
         dialectOptions: isAiven ? {
             ssl: {
                 require: true,
-                rejectUnauthorized: false // Melewati validasi sertifikat CA manual
+                rejectUnauthorized: false
             }
-        } : {} // Kalau pakai Laragon, biarkan kosong tanpa SSL
+        } : {} 
     }
 );
 
